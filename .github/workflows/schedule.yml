@@ -1,25 +1,54 @@
-name: Telegram scheduled sender
+name: Telegram scheduled sender (sáng - trưa - tối tụt)
 
 on:
   schedule:
-    - cron: '0 2 * * *'   # 09:00 VN (02:00 UTC)
-    - cron: '0 5 * * *'   # 12:00 VN (05:00 UTC)
-    - cron: '0 11 * * *'  # 18:00 VN (11:00 UTC)
-  workflow_dispatch: {}   # cho phép chạy thủ công để test
+    - cron: '0 2 * * *'    # 09:00 VN (02:00 UTC)
+    - cron: '0 5 * * *'    # 12:00 VN (05:00 UTC)
+    - cron: '0 12 * * *'   # 19:00 VN (12:00 UTC)
+  workflow_dispatch: {}     # Cho phép chạy thủ công để test
 
 jobs:
-  send:
+  morning:
+    if: github.event.schedule == '0 2 * * *' || github.event_name == 'workflow_dispatch'
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v4
-    - name: Setup Python
-      uses: actions/setup-python@v5
+    - uses: actions/setup-python@v5
       with:
         python-version: '3.11'
-    - name: Run sender
+    - name: Gửi tin nhắn buổi sáng
       env:
         TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
         TELEGRAM_CHAT_IDS: ${{ secrets.TELEGRAM_CHAT_IDS }}
-        TELEGRAM_MESSAGE: ${{ secrets.TELEGRAM_MESSAGE }}
-        TELEGRAM_PARSE_MODE: HTML
+        TELEGRAM_MESSAGE: "☀️ chào buổi sáng tụt"
+      run: python send_messages.py
+
+  noon:
+    if: github.event.schedule == '0 5 * * *' || github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+    - uses: actions/setup-python@v5
+      with:
+        python-version: '3.11'
+    - name: Gửi tin nhắn buổi trưa
+      env:
+        TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+        TELEGRAM_CHAT_IDS: ${{ secrets.TELEGRAM_CHAT_IDS }}
+        TELEGRAM_MESSAGE: "🍜 chào buổi trưa tụt"
+      run: python send_messages.py
+
+  evening:
+    if: github.event.schedule == '0 12 * * *' || github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+    - uses: actions/setup-python@v5
+      with:
+        python-version: '3.11'
+    - name: Gửi tin nhắn buổi tối
+      env:
+        TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+        TELEGRAM_CHAT_IDS: ${{ secrets.TELEGRAM_CHAT_IDS }}
+        TELEGRAM_MESSAGE: "🌙 chào buổi tối tụt"
       run: python send_messages.py
