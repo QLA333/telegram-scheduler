@@ -1,0 +1,25 @@
+name: Telegram scheduled sender
+
+on:
+  schedule:
+    - cron: '0 2 * * *'   # 09:00 VN (02:00 UTC)
+    - cron: '0 5 * * *'   # 12:00 VN (05:00 UTC)
+    - cron: '0 11 * * *'  # 18:00 VN (11:00 UTC)
+  workflow_dispatch: {}   # cho phép chạy thủ công để test
+
+jobs:
+  send:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+    - name: Setup Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.11'
+    - name: Run sender
+      env:
+        TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+        TELEGRAM_CHAT_IDS: ${{ secrets.TELEGRAM_CHAT_IDS }}
+        TELEGRAM_MESSAGE: ${{ secrets.TELEGRAM_MESSAGE }}
+        TELEGRAM_PARSE_MODE: HTML
+      run: python send_messages.py
